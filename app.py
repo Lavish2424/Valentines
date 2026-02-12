@@ -48,9 +48,9 @@ html_code = """
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-            transition: left 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
-                        top 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6),
-                        transform 0.35s;
+            transition: left 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
+                        top 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        transform 0.25s;
             user-select: none;
         }
         
@@ -62,7 +62,7 @@ html_code = """
         }
         
         #yesBtn:hover, #yesBtn:active {
-            transform: scale(1.2) rotate(8deg);
+            transform: scale(1.22) rotate(8deg);
         }
         
         #noBtn {
@@ -98,40 +98,51 @@ html_code = """
         const container = document.getElementById('container');
         let scale = 1.0;
 
-        function randomPosition() {
-            const maxX = container.clientWidth - noBtn.offsetWidth - 40;
-            const maxY = container.clientHeight - noBtn.offsetHeight - 60;
-            const x = 30 + Math.random() * maxX;
-            const y = 40 + Math.random() * maxY;
+        function randomPosition(bigJump = false) {
+            const maxX = container.clientWidth - noBtn.offsetWidth - 50;
+            const maxY = container.clientHeight - noBtn.offsetHeight - 70;
+            
+            let x = 30 + Math.random() * maxX;
+            let y = 40 + Math.random() * maxY;
+            
+            // Occasional big chaotic leap to opposite side
+            if (bigJump && Math.random() < 0.4) {
+                x = Math.random() < 0.5 ? 30 : maxX - 30;
+                y = Math.random() * maxY;
+            }
             
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
             noBtn.style.right = 'auto';
-            noBtn.style.transform = `scale(${scale})`;
+            noBtn.style.transform = `scale(${scale}) rotate(${Math.random() * 12 - 6}deg)`;
+            
+            // Reset rotation after jump
+            setTimeout(() => {
+                noBtn.style.transform = `scale(${scale})`;
+            }, 220);
         }
 
-        function shrinkAndMove(extra = 0) {
-            if (scale <= 0.28) return;
-            scale = Math.max(0.25, scale - 0.07 - extra);
-            noBtn.style.transition = 'transform 0.3s, left 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55), top 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
-            noBtn.style.transform = `scale(${scale})`;
-            randomPosition();
+        function chaoticMove(extraShrink = 0) {
+            if (scale <= 0.25) return;
+            scale = Math.max(0.24, scale - 0.055 - extraShrink);
+            noBtn.style.transition = 'all 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6)';
+            randomPosition(true);   // more chaotic jumps
         }
 
-        // Constant auto-shrink + move (the main new feature)
+        // CONSTANT fast movement + shrinking (never stops)
         setInterval(() => {
-            shrinkAndMove(0.02);   // gentle constant shrinking + movement
-        }, 1850);
+            chaoticMove(0.018);   // gentle constant shrink + fast move
+        }, 650);
 
-        // Proximity chase (mouse + touch)
+        // Proximity panic (mouse + touch)
         function handlePointer(clientX, clientY) {
             const rect = noBtn.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             const distance = Math.hypot(clientX - centerX, clientY - centerY);
             
-            if (distance < 160) {
-                shrinkAndMove(0.09);   // bigger shrink when you get close
+            if (distance < 155) {
+                chaoticMove(0.11);   // big panic shrink + wild jump
             }
         }
 
@@ -140,22 +151,22 @@ html_code = """
             if (e.touches.length) handlePointer(e.touches[0].clientX, e.touches[0].clientY);
         });
 
-        noBtn.addEventListener('mouseenter', () => shrinkAndMove(0.08));
+        noBtn.addEventListener('mouseenter', () => chaoticMove(0.09));
         noBtn.addEventListener('touchstart', e => {
             e.preventDefault();
-            shrinkAndMove(0.1);
+            chaoticMove(0.13);
         });
 
-        // Initial position
+        // Initial burst
         setTimeout(() => {
             scale = 1.0;
-            randomPosition();
-        }, 600);
+            randomPosition(true);
+        }, 400);
 
         function yesClicked() {
-            confetti({ particleCount: 230, spread: 100, origin: { y: 0.58 }, colors: ['#ec4899', '#f472b6', '#e11d48', '#22c55e', '#eab308'] });
-            confetti({ particleCount: 110, angle: 60, spread: 55, origin: { x: 0 } });
-            confetti({ particleCount: 110, angle: 120, spread: 55, origin: { x: 1 } });
+            confetti({ particleCount: 240, spread: 110, origin: { y: 0.58 }, colors: ['#ec4899', '#f472b6', '#e11d48', '#22c55e', '#eab308'] });
+            confetti({ particleCount: 120, angle: 55, spread: 60, origin: { x: 0 } });
+            confetti({ particleCount: 120, angle: 125, spread: 60, origin: { x: 1 } });
 
             document.body.innerHTML = `
                 <div style="margin-top: 22vh; padding: 20px; text-align: center;">
@@ -167,12 +178,12 @@ html_code = """
                     <p style="font-size: clamp(5rem, 18vw, 8rem); animation: bounce 1.4s infinite;">❤️🌹💖</p>
                 </div>
             `;
-            setInterval(() => confetti({ particleCount: 75, spread: 100 }), 340);
+            setInterval(() => confetti({ particleCount: 80, spread: 100 }), 320);
         }
 
         function noClicked() {
-            alert("💔 Too late... it's running away! 🏃‍♂️");
-            shrinkAndMove(0.12);
+            alert("💔 It's too fast now! 😂");
+            chaoticMove(0.15);
         }
 
         // Floating hearts
@@ -181,14 +192,14 @@ html_code = """
             heart.className = 'heart';
             heart.textContent = ['❤️','💖','💗','💓'][Math.floor(Math.random()*4)];
             heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (Math.random() * 6 + 9) + 's';
+            heart.style.animationDuration = (Math.random() * 6 + 8) + 's';
             heart.style.fontSize = (Math.random() * 1.7 + 2.1) + 'rem';
             document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 17500);
+            setTimeout(() => heart.remove(), 17000);
         }
         
-        setInterval(createHeart, 260);
-        for (let i = 0; i < 22; i++) setTimeout(createHeart, i * 130);
+        setInterval(createHeart, 220);
+        for (let i = 0; i < 25; i++) setTimeout(createHeart, i * 110);
     </script>
 </body>
 </html>
@@ -196,4 +207,4 @@ html_code = """
 
 st.components.v1.html(html_code, height=860)
 
-st.caption("❤️ No button now constantly shrinks + randomly moves! Fully mobile friendly.")
+st.caption("❤️ No button is now super chaotic — constantly moving fast + never stops! Test on your phone too.")
