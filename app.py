@@ -48,9 +48,9 @@ html_code = """
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-            transition: left 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
-                        top 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6),
-                        transform 0.25s;
+            transition: left 0.22s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
+                        top 0.22s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        transform 0.2s;
             user-select: none;
         }
         
@@ -97,6 +97,7 @@ html_code = """
         const noBtn = document.getElementById('noBtn');
         const container = document.getElementById('container');
         let scale = 1.0;
+        const minScale = 0.15;   // stays visible but tiny
 
         function randomPosition(bigJump = false) {
             const maxX = container.clientWidth - noBtn.offsetWidth - 50;
@@ -105,8 +106,7 @@ html_code = """
             let x = 30 + Math.random() * maxX;
             let y = 40 + Math.random() * maxY;
             
-            // Occasional big chaotic leap to opposite side
-            if (bigJump && Math.random() < 0.4) {
+            if (bigJump && Math.random() < 0.45) {
                 x = Math.random() < 0.5 ? 30 : maxX - 30;
                 y = Math.random() * maxY;
             }
@@ -114,27 +114,30 @@ html_code = """
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
             noBtn.style.right = 'auto';
-            noBtn.style.transform = `scale(${scale}) rotate(${Math.random() * 12 - 6}deg)`;
+            noBtn.style.transform = `scale(${scale}) rotate(${Math.random() * 16 - 8}deg)`;
             
-            // Reset rotation after jump
             setTimeout(() => {
                 noBtn.style.transform = `scale(${scale})`;
-            }, 220);
+            }, 180);
         }
 
         function chaoticMove(extraShrink = 0) {
-            if (scale <= 0.25) return;
-            scale = Math.max(0.24, scale - 0.055 - extraShrink);
-            noBtn.style.transition = 'all 0.28s cubic-bezier(0.68, -0.6, 0.32, 1.6)';
-            randomPosition(true);   // more chaotic jumps
+            // ALWAYS move, no matter how small
+            randomPosition(true);
+            
+            // Shrink slowly until minimum
+            if (scale > minScale) {
+                scale = Math.max(minScale, scale - 0.011 - extraShrink);
+                noBtn.style.transform = `scale(${scale})`;
+            }
         }
 
-        // CONSTANT fast movement + shrinking (never stops)
+        // CONSTANT fast chaotic movement (never stops)
         setInterval(() => {
-            chaoticMove(0.018);   // gentle constant shrink + fast move
-        }, 650);
+            chaoticMove(0.008);
+        }, 380);
 
-        // Proximity panic (mouse + touch)
+        // Proximity panic
         function handlePointer(clientX, clientY) {
             const rect = noBtn.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
@@ -142,7 +145,7 @@ html_code = """
             const distance = Math.hypot(clientX - centerX, clientY - centerY);
             
             if (distance < 155) {
-                chaoticMove(0.11);   // big panic shrink + wild jump
+                chaoticMove(0.095);   // strong panic reaction
             }
         }
 
@@ -154,14 +157,14 @@ html_code = """
         noBtn.addEventListener('mouseenter', () => chaoticMove(0.09));
         noBtn.addEventListener('touchstart', e => {
             e.preventDefault();
-            chaoticMove(0.13);
+            chaoticMove(0.12);
         });
 
-        // Initial burst
+        // Initial position
         setTimeout(() => {
             scale = 1.0;
             randomPosition(true);
-        }, 400);
+        }, 300);
 
         function yesClicked() {
             confetti({ particleCount: 240, spread: 110, origin: { y: 0.58 }, colors: ['#ec4899', '#f472b6', '#e11d48', '#22c55e', '#eab308'] });
@@ -182,7 +185,7 @@ html_code = """
         }
 
         function noClicked() {
-            alert("💔 It's too fast now! 😂");
+            alert("💔 It's never stopping now! 😂");
             chaoticMove(0.15);
         }
 
@@ -207,4 +210,4 @@ html_code = """
 
 st.components.v1.html(html_code, height=860)
 
-st.caption("❤️ No button is now super chaotic — constantly moving fast + never stops! Test on your phone too.")
+st.caption("❤️ No button now moves constantly & faster — never stops! Even when tiny it keeps jumping. Test on phone too.")
