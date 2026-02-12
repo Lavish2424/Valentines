@@ -175,8 +175,8 @@ html_code = """
                 <div style="margin-top: 22vh; padding: 20px; text-align: center;">
                     <h1 style="font-size: clamp(3.8rem, 13vw, 6.5rem); color: #e11d48;">YES!!! 💕</h1>
                     <p style="font-size: clamp(1.9rem, 6.5vw, 3.2rem); color: #881337; margin: 30px 0;">
-                        I knew you'd say yes, my love 🥰<br>
-                        You just made my whole year!
+                        I knew it!! 🥰<br>
+                        LETS GOOOOOO
                     </p>
                     <p style="font-size: clamp(5rem, 18vw, 8rem); animation: bounce 1.4s infinite;">❤️🌹💖</p>
                 </div>
@@ -185,7 +185,7 @@ html_code = """
         }
 
         function noClicked() {
-            alert("💔 It's never stopping now! 😂");
+            alert("💔Must've been a misclick 😂");
             chaoticMove(0.15);
         }
 
@@ -210,4 +210,4 @@ html_code = """
 
 st.components.v1.html(html_code, height=860)
 
-st.caption("❤️ No button now moves constantly & faster — never stops! Even when tiny it keeps jumping. Test on phone too.")
+st.caption("❤️ Alan")
