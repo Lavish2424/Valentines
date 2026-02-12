@@ -48,9 +48,9 @@ html_code = """
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 12px 35px rgba(0,0,0,0.3);
-            transition: left 0.22s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
-                        top 0.22s cubic-bezier(0.68, -0.6, 0.32, 1.6),
-                        transform 0.2s;
+            transition: left 0.19s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
+                        top 0.19s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        transform 0.18s;
             user-select: none;
         }
         
@@ -97,55 +97,58 @@ html_code = """
         const noBtn = document.getElementById('noBtn');
         const container = document.getElementById('container');
         let scale = 1.0;
-        const minScale = 0.15;   // stays visible but tiny
+        const minScale = 0.12;
 
         function randomPosition(bigJump = false) {
             const maxX = container.clientWidth - noBtn.offsetWidth - 50;
             const maxY = container.clientHeight - noBtn.offsetHeight - 70;
             
-            let x = 30 + Math.random() * maxX;
-            let y = 40 + Math.random() * maxY;
+            let x = 20 + Math.random() * maxX;
+            let y = 30 + Math.random() * maxY;
             
-            if (bigJump && Math.random() < 0.45) {
-                x = Math.random() < 0.5 ? 30 : maxX - 30;
-                y = Math.random() * maxY;
+            // More frequent and wild big jumps
+            if (bigJump && Math.random() < 0.58) {
+                x = Math.random() < 0.5 ? 25 : maxX - 25;
+                y = 30 + Math.random() * (maxY - 60);
+                // Extra randomness: sometimes jump near edges
+                if (Math.random() < 0.4) {
+                    x = Math.random() * 80 + (Math.random() < 0.5 ? 0 : maxX - 80);
+                }
             }
             
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
             noBtn.style.right = 'auto';
-            noBtn.style.transform = `scale(${scale}) rotate(${Math.random() * 16 - 8}deg)`;
+            noBtn.style.transform = `scale(${scale}) rotate(${Math.random() * 22 - 11}deg)`;
             
             setTimeout(() => {
                 noBtn.style.transform = `scale(${scale})`;
-            }, 180);
+            }, 160);
         }
 
         function chaoticMove(extraShrink = 0) {
-            // ALWAYS move, no matter how small
             randomPosition(true);
             
-            // Shrink slowly until minimum
             if (scale > minScale) {
-                scale = Math.max(minScale, scale - 0.011 - extraShrink);
+                scale = Math.max(minScale, scale - 0.023 - extraShrink);  // faster shrinking
                 noBtn.style.transform = `scale(${scale})`;
             }
         }
 
-        // CONSTANT fast chaotic movement (never stops)
+        // Faster constant movement
         setInterval(() => {
-            chaoticMove(0.008);
-        }, 380);
+            chaoticMove(0.012);
+        }, 320);
 
-        // Proximity panic
+        // Proximity panic (stronger)
         function handlePointer(clientX, clientY) {
             const rect = noBtn.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             const distance = Math.hypot(clientX - centerX, clientY - centerY);
             
-            if (distance < 155) {
-                chaoticMove(0.095);   // strong panic reaction
+            if (distance < 150) {
+                chaoticMove(0.13);
             }
         }
 
@@ -154,17 +157,17 @@ html_code = """
             if (e.touches.length) handlePointer(e.touches[0].clientX, e.touches[0].clientY);
         });
 
-        noBtn.addEventListener('mouseenter', () => chaoticMove(0.09));
+        noBtn.addEventListener('mouseenter', () => chaoticMove(0.11));
         noBtn.addEventListener('touchstart', e => {
             e.preventDefault();
-            chaoticMove(0.12);
+            chaoticMove(0.15);
         });
 
         // Initial position
         setTimeout(() => {
             scale = 1.0;
             randomPosition(true);
-        }, 300);
+        }, 250);
 
         function yesClicked() {
             confetti({ particleCount: 240, spread: 110, origin: { y: 0.58 }, colors: ['#ec4899', '#f472b6', '#e11d48', '#22c55e', '#eab308'] });
@@ -185,8 +188,8 @@ html_code = """
         }
 
         function noClicked() {
-            alert("💔 It's never stopping now! 😂");
-            chaoticMove(0.15);
+            alert("💔 It's going crazy now! 😂");
+            chaoticMove(0.18);
         }
 
         // Floating hearts
@@ -210,4 +213,4 @@ html_code = """
 
 st.components.v1.html(html_code, height=860)
 
-st.caption("❤️ No button now moves constantly & faster — never stops! Even when tiny it keeps jumping. Test on phone too.")
+st.caption("❤️ Updated: No button shrinks faster + way more random & frequent chaotic jumps! Never stops moving.")v
